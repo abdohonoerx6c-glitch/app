@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تم فتح المميزات</title>
+<title>تم فتح المميزات المدفوعة</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -55,32 +55,20 @@
   .btn {
     display: block;
     width: 100%;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
     color: #fff;
     text-decoration: none;
-    font-size: 15.5px;
+    font-size: 16px;
     font-weight: 600;
     padding: 15px;
     border-radius: 14px;
     border: none;
     cursor: pointer;
-    margin-bottom: 12px;
-  }
-  .btn-downloader {
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
     box-shadow: 0 8px 20px rgba(79,70,229,0.35);
-  }
-  .btn-callerid {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    box-shadow: 0 8px 20px rgba(217,119,6,0.35);
-  }
-  .choose-label {
-    font-size: 13px;
-    color: #94a3b8;
-    margin-bottom: 14px;
   }
   .fallback {
     margin-top: 18px;
-    font-size: 12.5px;
+    font-size: 13px;
     color: #94a3b8;
     line-height: 1.8;
   }
@@ -118,23 +106,17 @@
 
     <div class="badge">✅ تم التحقق بنجاح</div>
 
-    <h1>تم فتح المميزات</h1>
+    <h1>تم فتح المميزات المدفوعة</h1>
     <p class="desc">
-      شكرًا لك! تم فتح المميزات المدفوعة لباقي اليوم.
+      شكرًا لك! تم فتح جميع الجودات العالية (1080p و 4K) في تطبيق Downloader Pro
+      لباقي اليوم. اضغط الزر بالأسفل للعودة إلى التطبيق مباشرة.
     </p>
 
-    <p class="choose-label">اختر التطبيق اللي عايز ترجعله:</p>
-
-    <button class="btn btn-downloader" onclick="goToApp('downloaderpro://unlock')">
-      الرجوع إلى Downloader Pro
-    </button>
-    <button class="btn btn-callerid" onclick="goToApp('calleridpro://unlock')">
-      الرجوع إلى Advanced Caller ID
-    </button>
+    <button class="btn" onclick="goToApp()">الرجوع إلى التطبيق</button>
 
     <p class="fallback">
-      لو الزرار مايشتغلش، <strong>اقفل الصفحة يدويًا وارجع للتطبيق</strong>
-      من الشاشة الرئيسية لجهازك — هتلاقي المميزات اتفتحت تلقائيًا.
+      لو الزر مايشتغلش تلقائيًا، <strong>اقفل الصفحة دي يدويًا وارجع لتطبيق Downloader Pro</strong>
+      من الشاشة الرئيسية لجهازك — هتلاقي الجودات العالية اتفتحت تلقائيًا.
     </p>
   </div>
 
@@ -151,22 +133,24 @@
 
     <h1>لازم تدخل الصفحة دي من الرابط الصحيح</h1>
     <p class="desc">
-      يبدو إنك فتحت هذه الصفحة مباشرة. لفتح المميزات، لازم تفتح رابط
-      فتح المميزات من داخل التطبيق.
+      يبدو إنك فتحت هذه الصفحة مباشرة. لفتح المميزات المدفوعة، لازم تفتح
+      رابط "فتح الجودات العالية" من داخل تطبيق Downloader Pro.
     </p>
 
-    <button class="btn btn-downloader" onclick="goToApp('downloaderpro://unlock')">فتح Downloader Pro</button>
-    <button class="btn btn-callerid" onclick="goToApp('calleridpro://unlock')">فتح Advanced Caller ID</button>
+    <button class="btn" onclick="goToApp()">فتح التطبيق</button>
   </div>
 
 <script>
-  function goToApp(deepLink) {
-    window.location.href = deepLink;
+  // رابط الرجوع للتطبيق (Deep Link) - لازم يطابق intent-filter المُعرّف في AndroidManifest
+  var appDeepLink = "downloaderpro://unlock";
+
+  function goToApp() {
+    window.location.href = appDeepLink;
   }
 
   // التحقق (Best-effort فقط) من إن الزائر جاي عن طريق linkjust
   // ملحوظة: بعض المتصفحات بتمسح الـ referrer، فده تحقق مساعد
-  // وليس الحماية الأساسية - الحماية الحقيقية داخل كود كل تطبيق نفسه.
+  // وليس الحماية الأساسية - الحماية الحقيقية داخل كود التطبيق نفسه.
   function cameFromLinkjust() {
     var ref = document.referrer || "";
     return ref.indexOf("linkjust") !== -1;
@@ -176,11 +160,14 @@
     if (cameFromLinkjust()) {
       document.getElementById("verifiedCard").classList.remove("hidden");
       document.getElementById("notVerifiedCard").classList.add("hidden");
-      // ملحوظة: مفيش محاولة رجوع تلقائي هنا لأن الصفحة متسخدمة من
-      // تطبيقين مختلفين وما ينفعش نخمّن أنهي واحد فيهم المستخدم جاي منه
+      // محاولة تلقائية للرجوع للتطبيق فور تحميل الصفحة
+      setTimeout(function () {
+        window.location.href = appDeepLink;
+      }, 600);
     } else {
       document.getElementById("verifiedCard").classList.add("hidden");
       document.getElementById("notVerifiedCard").classList.remove("hidden");
+      // لا محاولة تلقائية هنا - ننتظر ضغطة المستخدم فقط
     }
   });
 </script>
